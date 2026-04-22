@@ -8,7 +8,7 @@ var FIXED_DATE = new Date('2026-03-23T00:00:00Z');
 describe('FileService._formatDatePrefix', function () {
 
   test('Date オブジェクトを yyyymmdd 形式に変換する', function () {
-    // ローカルタイムゾーンに依存しない UTC 日付を使用
+    // new Date(y, m, d) はローカルタイムゾーンの 00:00 を生成する
     var d = new Date(2026, 2, 23); // month は 0 始まり
     var result = FileService._formatDatePrefix(d);
     assertEqual(result, '20260323');

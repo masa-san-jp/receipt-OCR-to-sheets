@@ -31,6 +31,13 @@ function main() {
       // 重複チェック（冪等性保証）
       if (SheetsService.isDuplicate(CONFIG.SPREADSHEET_ID, CONFIG.LOG_SHEET_NAME, fileId)) {
         LogService.logInfo('重複スキップ: ' + fileName + ' (ID: ' + fileId + ')');
+        // 取込フォルダから除去し、次回以降スキャン対象に入らないようリネームして移動
+        var dupName = FileService.buildFileName('処理済', new Date(), null, fileName);
+        try {
+          FileService.moveToProcessed(file, CONFIG.PROCESSED_FOLDER_ID, dupName);
+        } catch (moveErr) {
+          LogService.logError(fileName + ' [重複移動失敗]', moveErr);
+        }
         continue;
       }
       processFile_(file, fileName, fileId, apiKey);
@@ -38,9 +45,10 @@ function main() {
     } catch (e) {
       // 技術エラー: ログ記録 → エラーフォルダへ移動
       LogService.logError(fileName, e);
+      var errMsg = (e && e.message) ? e.message : String(e);
       LogService.logResult(
         CONFIG.SPREADSHEET_ID, CONFIG.LOG_SHEET_NAME,
-        fileName, 'エラー', e.message, fileId
+        fileName, 'エラー', errMsg, fileId
       );
       try {
         var errName = FileService.buildFileName('エラー', new Date(), null, fileName);

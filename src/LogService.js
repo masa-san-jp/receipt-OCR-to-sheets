@@ -20,17 +20,19 @@ var LogService = (function () {
   }
 
   /**
-   * エラーをログシートと Logger に記録します。
+   * エラーを Logger に出力します（デバッグ用）。
+   * 処理結果のシート記録は logResult() で行います。
    * @param {string} fileName
-   * @param {Error}  error
+   * @param {Error|*} error
    */
   function logError(fileName, error) {
-    var msg = error && error.message ? error.message : String(error);
+    var msg = (error && error.message) ? error.message : String(error);
     Logger.log('[ERROR] ' + fileName + ': ' + msg);
   }
 
   /**
    * 処理結果をログシートに追記します。
+   * 既存シートに E 列（ファイルID）がない場合はヘッダを補完します。
    * @param {string} spreadsheetId
    * @param {string} logSheetName
    * @param {string} fileName
@@ -45,6 +47,9 @@ var LogService = (function () {
       if (!sheet) {
         sheet = ss.insertSheet(logSheetName);
         sheet.appendRow(['処理日時', 'ファイル名', '処理結果', 'メッセージ', 'ファイルID']);
+      } else if (sheet.getLastColumn() < 5) {
+        // 既存シートに E 列（ファイルID）がなければヘッダを追加
+        sheet.getRange(1, 5).setValue('ファイルID');
       }
       sheet.appendRow([now(), fileName, result, message, fileId || '']);
     } catch (e) {

@@ -77,9 +77,12 @@ var SheetsService = (function () {
       var ss    = SpreadsheetApp.openById(spreadsheetId);
       var sheet = ss.getSheetByName(logSheetName);
       if (!sheet || sheet.getLastRow() < 2) return false;
-      // E 列（index 4）のデータを取得
-      var ids = sheet.getRange(2, 5, sheet.getLastRow() - 1, 1).getValues();
-      return ids.some(function (row) { return row[0] === fileId; });
+      // E 列（ファイルID）が存在しない場合は重複なし扱い
+      if (sheet.getLastColumn() < 5) return false;
+      // TextFinder で E 列のみを対象に 1 件検索（全件読み込みより効率的）
+      var col    = sheet.getRange(2, 5, sheet.getLastRow() - 1, 1);
+      var finder = col.createTextFinder(fileId).matchEntireCell(true);
+      return finder.findNext() !== null;
     } catch (e) {
       Logger.log('[WARN] 重複チェック中にエラーが発生しました: ' + e.message);
       return false;

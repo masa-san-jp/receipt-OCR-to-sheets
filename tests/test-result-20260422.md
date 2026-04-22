@@ -95,7 +95,7 @@
 | 6 | 書類種別が「不明」→ NEEDS_REVIEW | ルール 6 | ✓ |
 | 7 | Gemini needs_review: true → NEEDS_REVIEW | ルール 7 | ✓ |
 
-### ValidationService.validate — エラー系・その他（4 件）
+### ValidationService.validate — エラー系・その他（5 件）
 
 | # | テスト名 | 結果 |
 |---|---------|------|
