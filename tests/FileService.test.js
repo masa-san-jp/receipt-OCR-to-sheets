@@ -3,7 +3,9 @@
 var FileService = require('../src/FileService.js');
 var { test, describe, assertEqual, assertTrue } = require('./testRunner.js');
 
-var FIXED_DATE = new Date('2026-03-23T00:00:00Z');
+// new Date('...Z') は UTC 基準のため、UTC-N 環境では前日の日付になる。
+// new Date(y, m, d) でローカル 00:00 を明示し、どの環境でも 2026-03-23 になるようにする。
+var FIXED_DATE = new Date(2026, 2, 23);
 
 describe('FileService._formatDatePrefix', function () {
 

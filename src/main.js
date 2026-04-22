@@ -22,10 +22,12 @@ function main() {
   }
 
   var processedCount = 0;
-  for (var i = 0; i < files.length && processedCount < CONFIG.MAX_FILES_PER_RUN; i++) {
+  var handledCount   = 0;  // 重複・エラーを含むすべての処理試行数（GAS 実行時間制限の上限管理）
+  for (var i = 0; i < files.length && handledCount < CONFIG.MAX_FILES_PER_RUN; i++) {
     var file     = files[i];
     var fileName = file.getName();
     var fileId   = file.getId();
+    handledCount++;
 
     try {
       // 重複チェック（冪等性保証）
