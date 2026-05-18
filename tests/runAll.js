@@ -10,6 +10,7 @@ console.log('実行日時: ' + new Date().toISOString());
 require('./ParseService.test.js');
 require('./ValidationService.test.js');
 require('./FileService.test.js');
+require('./RetryService.test.js');
 
 var { summary } = require('./testRunner.js');
 var result = summary();

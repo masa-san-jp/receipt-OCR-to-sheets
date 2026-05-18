@@ -11,7 +11,9 @@
 function main() {
   var apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
   if (!apiKey) {
-    LogService.logError('CONFIG', new Error('GEMINI_API_KEY がスクリプトプロパティに設定されていません'));
+    var cfgErr = 'GEMINI_API_KEY がスクリプトプロパティに設定されていません';
+    LogService.logError('CONFIG', new Error(cfgErr));
+    NotificationService.notifyCriticalError('CONFIG', cfgErr);
     return;
   }
 
@@ -22,6 +24,7 @@ function main() {
   }
 
   var processedCount = 0;
+  var errorCount     = 0;
   var handledCount   = 0;  // 重複・エラーを含むすべての処理試行数（GAS 実行時間制限の上限管理）
   for (var i = 0; i < files.length && handledCount < CONFIG.MAX_FILES_PER_RUN; i++) {
     var file     = files[i];
@@ -52,6 +55,7 @@ function main() {
         CONFIG.SPREADSHEET_ID, CONFIG.LOG_SHEET_NAME,
         fileName, 'エラー', errMsg, fileId
       );
+      errorCount++;
       try {
         var errName = FileService.buildFileName('エラー', new Date(), null, fileName);
         FileService.moveToProcessed(file, CONFIG.ERROR_FOLDER_ID, errName);
@@ -61,7 +65,8 @@ function main() {
     }
   }
 
-  LogService.logInfo('処理完了: ' + processedCount + ' 件');
+  LogService.logInfo('処理完了: 成功 ' + processedCount + ' 件、エラー ' + errorCount + ' 件');
+  NotificationService.notifySummary(processedCount, errorCount);
 }
 
 /**

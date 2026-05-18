@@ -30,5 +30,11 @@ const CONFIG = {
   MAX_FILES_PER_RUN: 10,
 
   // Gemini API モデル名
-  GEMINI_MODEL: 'gemini-2.5-flash-lite'
+  GEMINI_MODEL: 'gemini-2.5-flash-lite',
+
+  // 管理者通知設定
+  // ADMIN_EMAIL が未設定（プレースホルダー）の場合は通知をスキップします
+  ADMIN_EMAIL:              'ここに管理者のメールアドレスを設定',
+  NOTIFY_ON_CRITICAL_ERROR: true,  // CONFIG_ERROR など重大エラー時に即時メール通知
+  NOTIFY_BATCH_SUMMARY:     true   // バッチ終了時にエラーがあれば集約メール通知
 };

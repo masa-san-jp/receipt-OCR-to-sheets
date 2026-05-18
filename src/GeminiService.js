@@ -61,6 +61,13 @@ var GeminiService = (function () {
    * @throws {Error}    API エラー時
    */
   function callGeminiOcr(base64Image, mimeType, apiKey) {
+    return RetryService.withRetry(function () {
+      return _callOnce(base64Image, mimeType, apiKey);
+    }, 'GeminiService.callGeminiOcr');
+  }
+
+  /** 1 回分の API 呼び出し（RetryService から呼ばれる） */
+  function _callOnce(base64Image, mimeType, apiKey) {
     var model   = CONFIG.GEMINI_MODEL;
     var url     = API_BASE + model + ':generateContent?key=' + apiKey;
     var payload = {
@@ -87,7 +94,10 @@ var GeminiService = (function () {
     var bodyText   = response.getContentText();
 
     if (statusCode !== 200) {
-      throw new Error('Gemini API エラー (HTTP ' + statusCode + '): ' + bodyText.slice(0, 200));
+      var err = new Error('Gemini API エラー (HTTP ' + statusCode + '): ' + bodyText.slice(0, 200));
+      // 一時障害（429/500/503）は再試行対象としてマーク
+      err._retryable = RetryService.isRetryable(statusCode);
+      throw err;
     }
 
     var body = JSON.parse(bodyText);
